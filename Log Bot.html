@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LogBot</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg-primary: #0a0a0b;
+      --bg-secondary: #141416;
+      --bg-tertiary: #1e1e21;
+      --bg-accent: #2a2a2d;
+      --text-primary: #ffffff;
+      --text-secondary: #b4b4b8;
+      --text-muted: #8a8a8e;
+      --accent-primary: #6366f1;
+      --accent-secondary: #ff33cc;
+      --accent-success: #10b981;
+      --accent-warning: #f59e0b;
+      --accent-danger: #ef4444;
+      --border-primary: #2a2a2d;
+      --border-secondary: #3a3a3d;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+      --radius-sm: 100px;
+      --radius-md: 50px;
+      --radius-lg: 10px;
+      --radius-xl: 50px;
+      --radius-date: 900px;
+
+      --neon-glow-green: 
+  0 0 6px rgba(0, 255, 136, 0.6),
+  0 0 12px rgba(0, 255, 136, 0.6),
+  0 0 6px rgba(0, 255, 136, 0.4),
+  0 0 32px rgba(0, 255, 136, 0.3);
+
+--neon-glow-blue: 
+  0 0 6px rgba(0, 136, 255, 0.6),
+  0 0 6px rgba(0, 136, 255, 0.6),
+  0 0 24px rgba(0, 136, 255, 0.4),
+  0 0 32px rgba(0, 136, 255, 0.3);
+
+--neon-glow-pinkier: 
+  0 0 6px rgba(147, 51, 234, 0.6),
+  0 0 12px rgba(147, 51, 234, 0.6),
+  0 0 24px rgba(147, 51, 234, 0.4),
+  0 0 32px rgba(147, 51, 234, 0.3);
+
+--neon-glow-pink: 
+  0 0 6px rgba(255, 51, 204, 0.75),
+  0 0 12px rgba(255, 51, 204, 0.6),
+  0 0 24px rgba(255, 51, 204, 0.45),
+  0 0 36px rgba(255, 51, 204, 0.3),
+  0 0 48px rgba(255, 51, 204, 0.2);
+
+      --text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+  --text-shadow: 
+    0 0 8px rgba(0, 0, 0, 0.7),
+    0 0 16px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    body {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, #0f0f12 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 24px;
+      font-weight: 400;
+      text-shadow: var(--text-shadow);
+    }
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  border-radius: var(--radius-date);
+}
+
+.date-nav-btn {
+  padding: 16px 20px;
+  background: var(--bg-tertiary);
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--neon-glow-pink);
+  transition: 0.2s ease;
+}
+
+.date-nav-btn i {
+  font-size: 1.25rem;
+  color: var(--accent-primary);
+  text-shadow: var(--text-shadow);
+  border-radius: var(--radius-date);
+}
+
+#calendarDate {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  text-align: center;
+  padding: 16px 20px;
+  border: none;
+  border-radius: var(--radius-date);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--neon-glow-pink);
+  text-shadow: var(--text-shadow);
+}
+    
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.7),
+    0 0 14px rgba(255, 255, 255, 0.5),
+    0 0 22px rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.tag-add {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;  
+}
+
+#newTagInput {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-shadow: var(--neon-glow-blue);
+}
+
+#addTagBtn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--neon-glow-blue);
+}
+
+
+    
+.typewriter::after {
+  content: "|";
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  font-weight: 300;
+  text-shadow: var(--text-shadow);
+  min-height: 48px;
+  white-space: normal;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.sub-typewriter::after {
+  content: "|";
+  animation: blinkSub 1s step-end infinite;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+
+    
+    .log-nav-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.nav-icon-btn {
+  background: var(--bg-tertiary);
+  border: none;
+  padding: 12px;
+  border-radius: var(--radius-full, 50%);
+  cursor: pointer;
+  box-shadow: var(--neon-glow-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.nav-icon-btn:hover {
+  background: var(--bg-accent);
+  box-shadow: var(--neon-glow-green);
+  transform: scale(1.1);
+}
+
+.nav-icon-btn i {
+  font-size: 1.5rem;
+  color: var(--accent-primary);
+  text-shadow: var(--text-shadow);
+}
+
+.tag-add input {
+  flex: 1;
+  outline: none;
+}
+
+.tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+  .tag-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin: 4px 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* 👇 The subtle, non-overlapping shadow */
+  box-shadow: 0 1px 6px 4px rgba(0, 255, 136, 0.25);
+  }
+
+.tag-button.active {
+  background: var(--accent-primary);
+  color: white;
+    }
+   
+    @keyframes blinkSub {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+    
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+      text-shadow: var(--text-shadow);
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 16px 20px;
+      font-family: inherit;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--radius-lg);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      resize: vertical;
+      outline: none;
+      text-shadow: var(--text-shadow);
+      box-shadow: var(--neon-glow-blue);
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      box-shadow: var(--neon-glow-green);
+      background: var(--bg-tertiary);
+    }
+
+    input[type="text"]::placeholder, textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+      text-shadow: var(--text-shadow);
+    }
+    
+    .date-navigation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-nav-btn {
+      padding: 16px 20px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: none;
+      border-radius: var(--radius-date);
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: var(--text-shadow);
+      box-shadow: var(--neon-glow-pink);
+    }
+
+    .date-nav-btn:hover {
+      background: var(--bg-accent);
+      transform: translateY(-1px);
+      box-shadow: var(--neon-glow-pinkier);
+    }
+
+    .date-nav-btn:focus {
+      box-shadow: var(--neon-glow-pinkier);
+    }
+
+    #calendarDate {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      text-align: center;
+      letter-spacing: 0.5px;
+      flex: 1;
+      cursor: default;
+      background: var(--bg-tertiary);
+      text-shadow: var(--text-shadow);
+    }
+
+    #calendarDate:focus {
+      box-shadow: none;
+    }
+
+    textarea {
+      min-height: 120px;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.7;
+      text-shadow: var(--text-shadow);
+    }
+
+button[onclick="saveLog()"] {
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      text-shadow: var(--text-shadow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      box-shadow: var(--neon-glow-pink);
+      flex: 1;
+      justify-content: center;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--neon-glow-blue);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      flex: 1;
+      justify-content: center;
+      box-shadow: var(--neon-glow-blue);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-accent);
+      box-shadow: var(--neon-glow-pink);
+    }
+
+    .btn-success {
+      background: var(--accent-success);
+      color: white;
+      flex: 1;
+      justify-content: center;
+      box-shadow: var(--neon-glow-green);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: var(--neon-glow-blue);
+    }
+
+    .search-section {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-shadow: var(--text-shadow);
+    }
+
+    #searchInput {
+      padding-left: 48px;
+      text-shadow: var(--text-shadow);
+    }
+
+    .navigation {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-btn.icon-btn {
+  padding: 12px;
+  min-width: 48px;
+  border-radius: var(--radius-full, 50%);
+  background: var(--bg-tertiary);
+  box-shadow: var(--neon-glow-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn.icon-btn:hover {
+  background: var(--bg-accent);
+  box-shadow: var(--neon-glow-pink);
+  transform: scale(1.1);
+}
+
+.icon-btn i {
+  width: 24px;
+  height: 24px;
+  stroke: var(--accent-primary);
+  stroke-width: 2.2;
+  transition: all 0.2s ease;
+}
+
+    .log-display {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      min-height: 100px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--neon-glow-green);
+    }
+
+    .log-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .log-content {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+      text-shadow: var(--text-shadow);
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      text-align: center;
+      font-style: italic;
+      padding: 40px 20px;
+      text-shadow: var(--text-shadow);
+    }
+
+    .quote-text::after {
+  content: "|";
+  animation: blink-caret 0.75s step-end infinite;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes blink-caret {
+  0%, 100% { opacity: 0 }
+  50% { opacity: 1 }
+}
+    
+    .quote-section {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--neon-glow-pink);
+  
+    }
+
+    .quote-section::before {
+      content: '"';
+      position: absolute;
+      top: 16px;
+      left: 24px;
+      font-size: 3rem;
+      color: var(--accent-primary);
+      opacity: 0.3;
+      font-family: serif;
+      filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.4));
+    }
+
+    .quote-btn {
+      background: transparent;
+      color: var(--accent-primary);
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: var(--neon-glow-pink);
+    }
+
+    .quote-btn:hover {
+      background: var(--accent-primary);
+      color: white;
+      box-shadow: var(--neon-glow-green);
+    }
+
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      text-shadow: var(--text-shadow);
+    }
+
+    .icon-btn {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 12px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--neon-glow-green);
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: var(--bg-accent);
+  box-shadow: var(--neon-glow-blue);
+  transform: scale(1.1);
+}
+
+.icon-btn i {
+  font-size: 25px;
+  color: white;
+}
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .container {
+        gap: 20px;
+      }
+
+      .logo {
+        font-size: 2rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .navigation {
+        flex-direction: column;
+      }
+
+      .nav-btn {
+        min-width: auto;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .log-display, .quote-section {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Focus indicators for accessibility */
+    button:focus-visible {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 2px;
+    }
+/* ───────── Improved Audio Logs Styling ───────── */
+.audio-card {
+  background: linear-gradient(145deg, var(--bg-secondary), var(--bg-tertiary));
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-top: 32px;
+  box-shadow: var(--neon-glow-blue);
+  animation: fadeIn 0.4s ease-out;
+  position: relative;
+}
+
+.audio-card .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.audio-card .section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: var(--text-shadow);
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--accent-danger);
+  cursor: pointer;
+  transition: transform 0.2s;
+  text-shadow: var(--text-shadow);
+}
+
+.close-btn:hover {
+  transform: scale(1.2);
+}
+
+    
+
+.quote-icon {
+  stroke: var(--accent-primary);
+  stroke-width: 2.2;
+  width: 26px;
+  height: 26px;
+  animation: float-icon 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px var(--accent-primary));
+}
+
+@keyframes float-icon {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+#audioList {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-secondary);
+  padding-top: 12px;
+  scroll-behavior: smooth;
+}
+
+#audioList li {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 12px 0;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#audioList li:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--neon-glow-green);
+}
+
+#audioList audio {
+  flex: 1;
+  margin-right: 12px;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.2));
+}
+
+#audioList .controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.audio-card .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#audioList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#audioList li {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+#audioList .controls {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 11, 0.9);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  text-align: center;
+  box-shadow: var(--neon-glow-pink);
+  max-width: 360px;
+  width: 90%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-text {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  text-shadow: var(--text-shadow);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-danger {
+  background: var(--accent-danger);
+  color: white;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* ────── Animated Collapsible ────── */
+
+    .custom-collapsible {
+  margin-top: 10px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neon-glow-pink);
+  overflow: hidden;
+}
+
+    .custom-collapsible.open {
+      border-radius: 15px;
+    }
+
+.collapsible-header {
+  cursor: pointer;
+  color: var(--accent-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  user-select: none;
+  text-shadow: var(--text-shadow);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.caret {
+  transition: transform 0.3s ease;
+}
+
+.caret.rotate {
+  transform: rotate(90deg);
+}
+
+.collapsible-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  padding: 0 12px;
+}
+
+.custom-collapsible.open .collapsible-body {
+  max-height: 500px;
+  opacity: 1;
+  padding: 10px 12px;
+  }
+
+ #searchInput {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  font-size: 1rem !important;
+  padding: 16px 20px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+ }
+    .search-section > .input-wrapper > div {
+  width: 100% !important;
+  display: block !important;
+    }
+    .container {
+  width: 100% !important;
+  max-width: 100% !important;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="logo"><span class="typewriter" id="logbot-type"></span></h1>
+      <p class="subtitle"><span class="sub-typewriter" id="subtitle-type"></span></p>
+    </header>
+
+    <div class="input-group">
+      <div class="input-wrapper">
+        <label class="input-label" for="calendarDate">Date</label>
+        <div class="date-navigation">
+         <div class="date-navigation">
+  <button style="border-radius: 70px;" class="date-nav-btn" onclick="previousDay()">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+
+  <input type="text" id="calendarDate" placeholder="DD/MM/YY" readonly />
+
+  <button style="border-radius : 70px;" class="date-nav-btn" onclick="nextDay()">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+           </div> 
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label class="input-label" for="logInput" style="margin-top: 20px;">Daily Log</label>
+        <textarea id="logInput" rows="5" placeholder="What's on your mind today? Write your thoughts, experiences, or reflections..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+  <button class="btn-primary" onclick="saveLog()">Save Log</button>
+
+  <!-- ── TAGS SECTION ── -->
+  <div class="tag-add" style="flex:1; display:flex; gap:8px; align-items:center;">
+    <input
+      type="text"
+      id="newTagInput"
+      placeholder="Add a new tag…subject name, topic, etc"
+      onkeydown="if(event.key==='Enter') addTag()"
+    />
+    <button id="addTagBtn" class="icon-btn" onclick="addTag()">
+  <i class="fas fa-plus"></i>
+    </button>
+  </div>
+  <div class="custom-collapsible" id="tagBox">
+  <div class="collapsible-header" onclick="toggleTagBox()">
+    <span id="caret" class="caret">▶</span> Show Tags
+  </div>
+  <div class="collapsible-body" id="tagGrid"></div>
+  </div>
+  <!-- ──────────────── -->
+
+  <button class="btn-success" onclick="downloadLog()">
+  <i class="fas fa-download"></i> Log
+  </button>
+    </div>
+
+    <div class="search-section" style="width: 100%; margin-top: 20px;">
+  <label class="input-label" for="searchInput" style="margin-bottom: 10px; display: block;">Search</label>
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search logs. Type tags, dates, etc"
+    oninput="searchLogs()"
+    onkeydown="handleSearchKeydown(event)"
+    style="
+      display: block;
+      width: 100%;
+      font-size: 1.05rem;
+      padding: 16px 20px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: none;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--neon-glow-blue);
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: var(--text-shadow);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    "
+  />
+    </div>
+
+    <div class="log-nav-bar" style="margin-bottom: 17px;">
+  <button class="nav-icon-btn" onclick="showPreviousLog()">
+    <i class="fas fa-circle-left"></i>
+  </button>
+  <button class="nav-icon-btn" onclick="showNextLog()">
+    <i class="fas fa-circle-right"></i>
+  </button>
+    </div>
+
+    <div class="log-display">
+      <h3 class="section-title">Current Log</h3>
+      <div id="logOutput" class="log-content"></div>
+      <div id="emptyState" class="empty-state" style="display: none;">
+        No log entry for this date yet. Start writing above!
+      </div>
+    </div>
+
+    <div class="quote-section" style="margin-top: 16px;">
+  <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+    <i data-lucide="quote" class="quote-icon"></i>
+    <div id="quote" class="quote-text typewriter-quote"></div>
+  </div>
+  <button class="quote-btn" onclick="newQuote()" style="margin-top: 15px;">New Quote</button>
+
+<div id="confirmModal" style="display:none;" class="modal-overlay">
+  <div class="modal-box">
+    <p id="confirmText" class="modal-text"></p>
+    <div class="modal-buttons">
+      <button id="confirmCancel" class="btn-secondary">Cancel</button>
+      <button id="confirmDelete" class="btn-danger">Delete</button>
+    </div>
+  </div>
+</div>
+  
+  <script>
+    const logInput = document.getElementById("logInput");
+    const logOutput = document.getElementById("logOutput");
+    const calendarDate = document.getElementById("calendarDate");
+    const emptyState = document.getElementById("emptyState");
+
+    const quotes = [
+  "Success doesn't come from what you do occasionally, it comes from what you do consistently.",
+  "Discipline is choosing between what you want now and what you want most.",
+  "Don't wish it were easier. Wish you were better.",
+  "Push yourself, because no one else is going to do it for you.",
+  "The secret of getting ahead is getting started.",
+  "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+  "Winners are not afraid of losing. But losers are.",
+  "If you don't sacrifice for what you want, what you want becomes the sacrifice.",
+  "The way to get started is to quit talking and begin doing.",
+  "Your only limit is you.",
+  "Dream big. Start small. Act now.",
+  "Small daily improvements are the key to staggering long-term results.",
+  "Believe you can and you're halfway there.",
+  "Hard work beats talent when talent doesn't work hard.",
+  "Success is walking from failure to failure with no loss of enthusiasm.",
+  "Stay hungry. Stay foolish.",
+  "Success is the sum of small efforts repeated day in and day out.",
+  "Be stronger than your excuses.",
+  "You don't have to be great to start, but you have to start to be great.",
+  "If it's important to you, you'll find a way. If not, you'll find an excuse.",
+  "The best view comes after the hardest climb.",
+  "The future depends on what you do today.",
+  "Doubt kills more dreams than failure ever will.",
+  "When you feel like quitting, think about why you started.",
+  "One day or day one. You decide.",
+  "You are capable of amazing things.",
+  "Grind in silence. Let success make the noise.",
+  "Do something today that your future self will thank you for.",
+  "Focus on your goals. Don't look in any direction but ahead.",
+  "Discipline is doing it even when you don't feel like it.",
+  "Be obsessed with your own potential.",
+  "Don't stop until you're proud.",
+  "Wake up with determination. Go to bed with satisfaction.",
+  "Every accomplishment starts with the decision to try.",
+  "Stop doubting yourself. Work hard, and make it happen.",
+  "If you're tired, do it tired.",
+  "Act like you already got it and watch yourself rise.",
+  "Keep going. Everything you need will come to you at the perfect time.",
+  "Study now, shine later.",
+  "Make your future self proud.",
+  "The pain you feel today will be the strength you feel tomorrow.",
+  "Success doesn't rush. The greatest reward is the journey.",
+  "Your dreams don't work unless you do.",
+  "Commit to the process and the results will follow.",
+  "Turn your 'I wish' into 'I will'.",
+  "Focus. Breathe. Win.",
+  "Your only competition is who you were yesterday.",
+  "You didn't come this far to only come this far.",
+  "Fall seven times, stand up eight.",
+  "The expert in anything was once a beginner.",
+  "Think big. Trust yourself. Study hard.",
+  "Don't count the hours, make the hours count.",
+  "Keep showing up.",
+  "Distractions destroy action. Stay focused.",
+  "A little progress each day adds up to big results.",
+  "Consistency creates confidence.",
+  "Success = Focus + Effort + Consistency",
+  "Visualize your highest self, then show up as them.",
+  "Be the hardest worker in the room.",
+  "Every second counts.",
+  "Fail better every day.",
+  "Growth is uncomfortable because you've never been there before.",
+  "Your grind will pay off. Just don't quit.",
+  "Energy flows where attention goes.",
+  "Progress, not perfection.",
+  "You're not behind. You're on your own path.",
+  "Study like your dreams depend on it. Because they do.",
+  "Inhale confidence, exhale doubt.",
+  "Breathe. Focus. Execute.",
+  "Big dreams need big discipline.",
+  "Do it scared. Do it messy. Just do it.",
+  "Be relentless with your goals.",
+  "Your grind should outshine your excuses.",
+  "Push through the discomfort. Growth lives there.",
+"Success is rented, and rent is due every day.",
+"Do it now so you don't regret it later.",
+"Make your grind louder than your doubts.",
+"Today’s pain is tomorrow’s strength.",
+"Comfort is the enemy of progress.",
+"The key is consistency, not intensity.",
+"Don’t fear failure, fear being in the same place next year.",
+"You become what you repeat.",
+"The dream works when you do.",
+"Your best weapon is focus.",
+"You don’t need motivation. You need momentum.",
+"Discipline over drama.",
+"You’re not behind. You’re building.",
+"Every day is a blank page. Fill it wisely.",
+"If you're tired, do it exhausted.",
+"You don’t rise to the occasion, you fall to your preparation.",
+"Bet on yourself. Every time.",
+"Stay focused and the results will speak.",
+"Excuses don’t get results. Action does.",
+"Greatness comes from getting back up.",
+"Your hustle decides your future.",
+"Progress is proof that you're moving.",
+"Regret weighs more than effort.",
+"The best version of you is waiting on the other side of hard work.",
+"Talk less, do more.",
+"You are your only limit.",
+"Never let yesterday define today.",
+"Train like you’re already where you want to be.",
+"Grind when no one’s watching.",
+"Start where you are. Use what you have. Do what you can.",
+"You get what you give.",
+"Don’t just wish. Work.",
+"Repetition rewires reality.",
+"Keep building. Keep believing.",
+"Do what your future self will thank you for.",
+"Hard work beats excuses every time.",
+"Progress isn’t always visible, but it’s happening.",
+"The gap between dreams and reality is discipline.",
+"Your energy introduces your grind.",
+"You were born to do hard things.",
+"Get uncomfortable. That’s where the change starts.",
+"Let your work make the noise.",
+"Turn pressure into power.",
+"Small wins lead to big victories.",
+"You’re closer than you think.",
+"Win the morning. Win the day.",
+"Effort compounds.",
+"You’re stronger than the struggle.",
+"Obsess over improvement.",
+"Grind now, flex later.",
+"Success comes in silence, then makes noise.",
+"Wake up and show up.",
+"One hour a day beats none.",
+"Plan. Execute. Repeat.",
+"Don’t count the days. Make the days count.",
+"Even your slow progress is progress.",
+"Don’t stop when you’re tired. Stop when you’re done.",
+"Be disciplined enough to be consistent.",
+"Do what’s necessary, not what’s easy.",
+"Outwork your self-doubt.",
+"Hard work never goes unnoticed. It shows in results.",
+"One step at a time still gets you there.",
+"Discipline: doing it when it’s boring.",
+"One day of grinding beats a week of wishing.",
+"The goal is growth, not perfection.",
+"Outgrow your excuses.",
+"You don’t find time. You make it.",
+"Nobody cares — work harder.",
+"The comeback is always stronger than the setback.",
+"Burn excuses, not time.",
+"Action creates clarity.",
+"Break your limits before they break you.",
+"Stay consistent and chaos becomes order.",
+"Talent starts the race, but consistency finishes it.",
+"Wake up with a mission, not a mood.",
+"Be so good, your past self wouldn’t believe it.",
+"Sacrifice is temporary. Success is forever.",
+"Grind in private, win in public.",
+"Make your why louder than your excuses.",
+"Fear doesn’t stop death. It stops life.",
+"Success is a decision, not a miracle.",
+"You’re one disciplined week away from momentum.",
+"Study hard, then harder.",
+"Nobody’s coming. It’s on you.",
+"Your habits shape your future more than your dreams.",
+"Slay your inner quitter.",
+"Be sharper than your distractions.",
+"You are built to adapt. Keep going.",
+"Trust the delay. Stay on your grind.",
+"Study like the exam is tomorrow, live like it’s today.",
+"Quit waiting. Start shaping.",
+"Discipline makes boring days legendary.",
+"You’ve done hard things before. You’ll do this too.",
+"Invest in discomfort — the return is growth.",
+"Finish strong, even if you started slow.",
+"Choose growth over comfort daily.",
+"Ignore the noise. Respect the process.",
+"Beat the version of you who wants to quit.",
+"Resilience is earned. Not gifted.",
+"Own your time or someone else will.",
+ "Storms make trees take deeper roots.",
+  "Show up. Show out. Level up.",
+  "Results happen over time, not overnight.",
+  "Success isn't luck. It's hustle.",
+  "Don't lower your standards. Raise your effort.",
+  "Sacrifice now to live your dreams later.",
+  "Nothing changes if nothing changes.",
+  "Let your hustle be louder than your comfort.",
+  "Tough times don't last. Tough people do.",
+  "Prove them wrong. But first, prove yourself right.",
+  "Start strong. Finish stronger.",
+  "You don't need motivation. You need discipline.",
+  "Every day is a step closer to your goal.",
+  "Repetition is the mother of mastery.",
+  "If they can do it, why not you?",
+  "Don't get distracted by things that have nothing to do with your goals.",
+  "You're the only one who can make it happen.",
+  "Success requires sacrifice. Choose your hard.",
+  "You're not tired — you're uninspired. Reignite.",
+  "Do what others won't so you can have what others can't.",
+  "Put in the work. Trust the process.",
+  "Silence the doubt with action.",
+  "Study like you mean it.",
+  "Mindset is everything.",
+  "Stop waiting for perfect. Start now.",
+  "Be a warrior, not a worrier.",
+  "Every great achiever was once a beginner.",
+  "It always seems impossible until it's done.",
+  "Don't overthink. Just begin.",
+  "Consistency is a superpower.",
+  "Slay the day.",
+  "More grind, less mind drama.",
+  "Mastery = Repetition + Time",
+  "Show up tired. Show up unsure. Just show up.",
+  "You owe it to yourself to be great.",
+  "It's a slow process, but quitting won't speed it up.",
+  "Become so good they can't ignore you.",
+  "Do it for the future you.",
+  "Get up. Get better. Get ahead.",
+  "You're in control. Act like it.",
+  "Make your mindset your greatest weapon.",
+  "No one can beat you if you don't give up.",
+  "Effort will take you further than talent.",
+  "Master yourself. Win everything.",
+  "Nothing worth having comes easy.",
+  "Grit gets it done.",
+  "You weren't born to be average.",
+  "The earlier you start, the sooner you win.",
+  "Don't break the chain — do it again today.",
+  "There's magic in momentum.",
+  "Confidence is built through action.",
+  "Burnout comes from chaos. Plan and conquer.",
+  "Keep learning, keep leveling up.",
+  "Resilience is built, not born.",
+  "Tame your mind, own your path.",
+  "Focus is the new superpower.",
+  "You've got 24 hours. Use them wisely.",
+  "Good habits > motivation.",
+  "Future success = today's grind.",
+  "What you do now echoes in the exam hall.",
+  "Self-discipline is self-love.",
+  "No rush. Just rise."
+];
+
+    function getTodayFormatted() {
+      const today = new Date();
+      return (
+        String(today.getDate()).padStart(2, '0') + '/' +
+        String(today.getMonth() + 1).padStart(2, '0') + '/' +
+        String(today.getFullYear()).slice(-2)
+      );
+    }
+
+    function parseDate(dateStr) {
+      if (!dateStr || !dateStr.match(/^\d{2}\/\d{2}\/\d{2}$/)) {
+        return new Date(); // Return current date if invalid
+      }
+      const [day, month, year] = dateStr.split('/').map(Number);
+      if (isNaN(day) || isNaN(month) || isNaN(year)) {
+        return new Date(); // Return current date if parsing fails
+      }
+      return new Date(2000 + year, month - 1, day);
+    }
+
+    function formatDate(date) {
+      return (
+        String(date.getDate()).padStart(2, '0') + '/' +
+        String(date.getMonth() + 1).padStart(2, '0') + '/' +
+        String(date.getFullYear()).slice(-2)
+      );
+    }
+
+    function previousDay() {
+      const currentDate = parseDate(calendarDate.value);
+      const previousDate = new Date(currentDate);
+      previousDate.setDate(currentDate.getDate() - 1);
+      const newDateStr = formatDate(previousDate);
+      calendarDate.value = newDateStr;
+      displayLog(newDateStr);
+    }
+
+    function nextDay() {
+      const currentDate = parseDate(calendarDate.value);
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(currentDate.getDate() + 1);
+      const newDateStr = formatDate(nextDate);
+      calendarDate.value = newDateStr;
+      displayLog(newDateStr);
+    }
+
+    function formatDateForFilename(dateStr) {
+      const [dd, mm, yy] = dateStr.split('/');
+      return `log-${dd}-${mm}-${yy}.txt`;
+    }
+
+    function downloadLog() {
+      const date = calendarDate.value;
+      const content = logInput.value;
+      const filename = formatDateForFilename(date);
+
+      const blob = new Blob([`Date: ${date}\n\n${content}`], { type: 'text/plain' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    if (!calendarDate.value) {
+      calendarDate.value = getTodayFormatted();
+    }
+
+    let logDates = JSON.parse(localStorage.getItem("logDates") || "[]");
+
+    function sortDates(dates) {
+      return dates.sort((a, b) => {
+        const [d1, m1, y1] = a.split('/').map(Number);
+        const [d2, m2, y2] = b.split('/').map(Number);
+        return new Date(`20${y2}`, m2 - 1, d2) - new Date(`20${y1}`, m1 - 1, d1);
+      });
+    }
+
+    function saveLog() {
+      const date = calendarDate.value;
+      const content = logInput.value.trim();
+      localStorage.setItem("tags-" + date, JSON.stringify(selectedTags));
+
+      if (content) {
+        // Save the log content
+        localStorage.setItem("log-" + date, content);
+        if (!logDates.includes(date)) {
+          logDates.push(date);
+          logDates = sortDates(logDates);
+          localStorage.setItem("logDates", JSON.stringify(logDates));
+        }
+      } else {
+        // If content is empty, remove the log entry
+        localStorage.removeItem("log-" + date);
+        const index = logDates.indexOf(date);
+        if (index > -1) {
+          logDates.splice(index, 1);
+          localStorage.setItem("logDates", JSON.stringify(logDates));
+        }
+      }
+
+      displayLog(date);
+    }
+
+    function displayLog(date) {
+      // Validate date format before proceeding
+      if (!date || !date.match(/^\d{2}\/\d{2}\/\d{2}$/)) {
+        console.error("Invalid date format:", date);
+        return;
+        loadAudioLogs();
+        const savedTags = JSON.parse(localStorage.getItem("tags-" + date) || "[]");
+selectedTags = savedTags;
+createTagSelector(); // refresh with active state
+document.querySelectorAll(".tag-button").forEach(btn => {
+  const tag = btn.textContent.replace("#", "");
+  if (selectedTags.includes(tag)) btn.classList.add("active");
+});// …existing displayLog logic…
+  loadTagsForDate();
+      }
+
+      const saved = localStorage.getItem("log-" + date);
+
+      // Load saved content into the textarea for editing
+      logInput.value = saved || "";
+
+      if (saved) {
+        logOutput.innerHTML = `<div style="color: var(--accent-primary); font-weight: 500; margin-bottom: 12px;">Saved log for ${date} (loaded in editor above for editing):</div>${saved}`;
+        logOutput.style.display = 'block';
+        emptyState.style.display = 'none';
+      } else {
+        logOutput.style.display = 'none';
+        emptyState.style.display = 'block';
+      }
+
+      calendarDate.value = date;
+    }
+
+    function showPreviousLog() {
+      const currentIndex = logDates.indexOf(calendarDate.value);
+      if (currentIndex < logDates.length - 1) {
+        const prevDate = logDates[currentIndex + 1];
+        calendarDate.value = prevDate;
+        displayLog(prevDate);
+      }
+    }
+
+    function showNextLog() {
+      const currentIndex = logDates.indexOf(calendarDate.value);
+      if (currentIndex > 0) {
+        const nextDate = logDates[currentIndex - 1];
+        calendarDate.value = nextDate;
+        displayLog(nextDate);
+      }
+    }
+
+    function searchLogs() {
+  const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+  if (!keyword) {
+    displayLog(calendarDate.value); // fallback to current log
+    return;
+  }
+
+  let results = [];
+
+  for (let date of logDates) {
+    const content = (localStorage.getItem("log-" + date) || "").toLowerCase();
+    const tags = JSON.parse(localStorage.getItem("tags-" + date) || "[]").map(t => t.toLowerCase());
+
+    if (content.includes(keyword) || tags.some(tag => tag.includes(keyword))) {
+      results.push({
+        date,
+        content: localStorage.getItem("log-" + date),
+        tags
+      });
+    }
+  }
+
+  if (results.length === 0) {
+    logOutput.innerHTML = `<div style="color: var(--text-muted); text-align: center; font-style: italic;">No logs found containing "${keyword}"</div>`;
+    logOutput.style.display = 'block';
+    emptyState.style.display = 'none';
+    return;
+  }
+
+  // Show all results
+  logOutput.innerHTML = results.map(r => `
+    <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); box-shadow: var(--neon-glow-blue);">
+      <div style="color: var(--accent-primary); font-weight: 600; margin-bottom: 8px;">${r.date}</div>
+      <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">${r.content}</div>
+      ${r.tags.length > 0 ? `<div style="margin-top: 8px; color: var(--text-muted); font-size: 0.85rem;">Tags: ${r.tags.map(t => `#${t}`).join(", ")}</div>` : ""}
+    </div>
+  `).join("");
+
+  logOutput.style.display = 'block';
+  emptyState.style.display = 'none';
+    }
+
+    function handleSearchKeydown(event) {
+      // Clear search and return to current date view when Escape is pressed
+      if (event.key === 'Escape') {
+        document.getElementById("searchInput").value = '';
+        displayLog(calendarDate.value);
+      }
+    }
+
+    function newQuote() {
+  const quoteEl = document.getElementById("quote");
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  const speed = 25; // adjust speed if needed
+
+  quoteEl.textContent = ""; // clear old text
+  let i = 0;
+
+  function typeChar() {
+    if (i < quote.length) {
+      quoteEl.textContent += quote.charAt(i);
+      i++;
+      setTimeout(typeChar, speed);
+    }
+  }
+
+  typeChar();
+    }
+
+    // Initialize app
+    calendarDate.value = getTodayFormatted();
+    if (!logDates.includes(calendarDate.value)) {
+      logDates.push(calendarDate.value);
+      logDates = sortDates(logDates);
+      localStorage.setItem("logDates", JSON.stringify(logDates));
+    }
+    displayLog(calendarDate.value);
+    newQuote();
+  let mediaRecorder;
+let audioChunks = [];
+let latestAudioBlob = null;
+
+function toggleRecording() {
+  if (!mediaRecorder || mediaRecorder.state === "inactive") {
+    startRecording();
+  } else if (mediaRecorder.state === "recording") {
+    stopRecording();
+  }
+}
+
+function startRecording() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      latestAudioBlob = audioBlob;
+      const url = URL.createObjectURL(audioBlob);
+      const date = calendarDate.value;
+      const audioKey = `audio-${date}-${Date.now()}`;
+      localStorage.setItem(audioKey, url);
+      loadAudioLogs();
+    };
+
+    mediaRecorder.start();
+    document.getElementById("recordBtn").textContent = "Stop Recording";
+  }).catch(err => {
+    alert("Audio permission denied or not supported.");
+    console.error(err);
+  });
+}
+
+function stopRecording() {
+  mediaRecorder.stop();
+  document.getElementById("recordBtn").textContent = "Start Recording";
+}
+
+function loadAudioLogs() {
+  const list = document.getElementById("audioList");
+  list.innerHTML = "";
+  const prefix = `audio-${calendarDate.value}`;
+  for (let key in localStorage) {
+    if (key.startsWith(prefix)) {
+      const url = localStorage.getItem(key);
+      const li = document.createElement("li");
+
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = url;
+
+      const del = document.createElement("button");
+      del.textContent = "Delete";
+      del.className = "close-btn";
+      del.onclick = () => {
+        localStorage.removeItem(key);
+        loadAudioLogs();
+      };
+
+      const wrap = document.createElement("div");
+      wrap.className = "controls";
+      wrap.appendChild(audio);
+      wrap.appendChild(del);
+
+      li.appendChild(wrap);
+      list.appendChild(li);
+    }
+  }
+}
+
+function clearAudioLogs() {
+  const prefix = `audio-${calendarDate.value}`;
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+  if (confirm(`Delete ${keys.length} audio log(s) for this date?`)) {
+    keys.forEach(k => localStorage.removeItem(k));
+    loadAudioLogs();
+  }
+}
+
+function downloadAudio() {
+  if (!latestAudioBlob) return alert("No recent audio recorded.");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(latestAudioBlob);
+  a.download = `audio-${calendarDate.value}.webm`;
+  a.click();
+    }
+  document.addEventListener("DOMContentLoaded", () => {
+  const target = document.getElementById("logbot-type");
+  const text = "LogBot";
+  let index = 0;
+
+  function type() {
+    if (index <= text.length) {
+      target.textContent = text.substring(0, index);
+      index++;
+      setTimeout(type, 150); // typing speed
+    } else {
+      // Stop blinking cursor after typing is done
+      target.classList.remove("typewriter");
+    }
+  }
+
+  type();
+});
+
+//  Subtitle typewriter (after LogBot)
+setTimeout(() => {
+  const subTarget = document.getElementById("subtitle-type");
+  const subText = "Your daily thoughts, <br>beautifully organized";
+  let subIndex = 0;
+
+  function typeSubtitle() {
+    if (subIndex <= subText.length) {
+      subTarget.innerHTML = subText.substring(0, subIndex);
+      subIndex++;
+      setTimeout(typeSubtitle, 60); // faster typing for subtitle
+    } else {
+      subTarget.classList.remove("sub-typewriter"); // hide cursor
+    }
+  }
+
+  typeSubtitle();
+}, 1200); // delay starts after LogBot finishes typing
+
+    let selectedTags = [];
+
+// Render current tags for this date
+function renderTags() {
+  const grid = document.getElementById("tagGrid");
+  grid.innerHTML = "";
+  const allTags = JSON.parse(localStorage.getItem("allTags") || "[]");
+
+  allTags.forEach(tag => {
+    const btn = document.createElement("button");
+btn.className = "tag-button";
+btn.style.display = "inline-flex";
+btn.style.alignItems = "center";
+btn.style.gap = "6px";
+btn.style.paddingRight = "10px"; // space for ✕
+btn.textContent = "#" + tag;
+
+if (selectedTags.includes(tag)) btn.classList.add("active");
+btn.onclick = () => toggleTag(tag, btn);
+
+// ✕ close button inside the tag button
+const removeBtn = document.createElement("button");
+removeBtn.textContent = "✕";
+removeBtn.style.background = "transparent";
+removeBtn.style.color = "var(--accent-danger)";
+removeBtn.style.border = "none";
+removeBtn.style.cursor = "pointer";
+removeBtn.style.fontWeight = "bold";
+removeBtn.style.fontSize = "0.9rem";
+removeBtn.style.margin = "0";
+removeBtn.style.padding = "0";
+removeBtn.style.lineHeight = "1";
+removeBtn.style.transform = "translateX(2px)";
+removeBtn.onclick = (e) => {
+  e.stopPropagation(); // prevents toggleTag from firing
+  removeTag(tag);
+};
+
+btn.appendChild(removeBtn);
+grid.appendChild(btn);
+  });
+}
+
+// Toggle a tag’s selected state
+function toggleTag(tag, btn) {
+  if (selectedTags.includes(tag)) {
+    selectedTags = selectedTags.filter(t => t !== tag);
+    btn.classList.remove("active");
+  } else {
+    selectedTags.push(tag);
+    btn.classList.add("active");
+  }
+}
+
+// Add a new tag to master list
+function addTag() {
+  const input = document.getElementById("newTagInput");
+  const tag = input.value.trim();
+  if (!tag) return;
+  let allTags = JSON.parse(localStorage.getItem("allTags") || "[]");
+  if (!allTags.includes(tag)) {
+    allTags.push(tag);
+    localStorage.setItem("allTags", JSON.stringify(allTags));
+  }
+  input.value = "";
+  loadTagsForDate(); // re-render with the new tag
+}
+
+  function removeTag(tagToRemove) {
+  showConfirm(`Are you sure you want to delete the tag: #${tagToRemove}?`, () => {
+    let allTags = JSON.parse(localStorage.getItem("allTags") || "[]");
+    allTags = allTags.filter(t => t !== tagToRemove);
+    localStorage.setItem("allTags", JSON.stringify(allTags));
+
+    // Remove from current log's tags
+    selectedTags = selectedTags.filter(t => t !== tagToRemove);
+    localStorage.setItem("tags-" + calendarDate.value, JSON.stringify(selectedTags));
+
+    renderTags();
+  });
+  }
+
+    function toggleTagBox() {
+  const box = document.getElementById("tagBox");
+  const caret = document.getElementById("caret");
+  box.classList.toggle("open");
+  caret.classList.toggle("rotate");
+  }
+
+// Load tags for the current date and master list
+function loadTagsForDate() {
+  const date = calendarDate.value;
+  selectedTags = JSON.parse(localStorage.getItem("tags-" + date) || "[]");
+  renderTags();
+}
+
+// Integrate with saveLog: after you save the log content, also persist tags
+const origSaveLog = saveLog;
+saveLog = function() {
+  origSaveLog();
+  localStorage.setItem("tags-" + calendarDate.value, JSON.stringify(selectedTags));
+};
+
+// Call loadTagsForDate() whenever the date or page loads
+document.addEventListener("DOMContentLoaded", () => {
+  loadTagsForDate();
+});
+
+function showConfirm(message, onConfirm) {
+  const modal = document.getElementById("confirmModal");
+  const text = document.getElementById("confirmText");
+  const cancelBtn = document.getElementById("confirmCancel");
+  const deleteBtn = document.getElementById("confirmDelete");
+
+  text.textContent = message;
+  modal.style.display = "flex";
+
+  const close = () => {
+    modal.style.display = "none";
+    cancelBtn.onclick = null;
+    deleteBtn.onclick = null;
+  };
+
+  cancelBtn.onclick = () => close();
+  deleteBtn.onclick = () => {
+    close();
+    onConfirm();
+  };
+    }
+    
+  </script>    
+  </body>
+</html>
